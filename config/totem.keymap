@@ -57,7 +57,9 @@
     };
 
     symbols {
-        TAPHOLD_SYMBOL(th_copycat, &macro_tap LC(C), &macro_tap LC(X))
+        SYMBOL(mc_copy, &kp LC(C))
+        SYMBOL(mc_cut, &kp LC(X))
+        TAPHOLD_SYMBOL(th_copycat, &mc_copy, &mc_cut)
     };
 
     #define COMBO(NAME, KEYS, BINDINGS) \
