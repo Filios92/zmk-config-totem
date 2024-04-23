@@ -25,6 +25,9 @@
 #define SYS  6
 #define MEDIA  7
 
+#define STRINGIFY(x) #x
+#define EXPAND_AND_STRINGIFY(x) STRINGIFY(x)
+#define ZMK_MACRO_STRINGIFY(x) EXPAND_AND_STRINGIFY(x)
 
 &mt {
   quick-tap-ms = <100>;
