@@ -48,7 +48,7 @@
         };
 
     #define TAPHOLD_SYMBOL(NAME, TAP, HOLD) \
-            NAME: NAME { \
+        NAME: NAME { \
             compatible = "zmk,behavior-hold-tap"; \
             label = ZMK_MACRO_STRINGIFY(NAME); \
             #binding-cells = <2>; \
@@ -70,7 +70,17 @@
             bindings = <&macro_tap &kp LC(C)>;
         };
         SYMBOL(mc_cut, &kp LC(X))
-        TAPHOLD_SYMBOL(th_copycat, &mc_copy, &mc_cut)
+        //TAPHOLD_SYMBOL(th_copycat, &mc_copy, &mc_cut)
+        th_copycat: th_copycat {
+            compatible = "zmk,behavior-hold-tap";
+            label = "th_copycat";
+            #binding-cells = <2>;
+            tapping-term-ms = <TAPPING_TERM>;
+            flavor = "tap-preferred";
+            quick-tap-ms = <QUICK_TAP_TERM>;
+            require-prior-idle-ms = <QUICK_TAP_TERM>;
+            bindings = <&mc_cut>, <&mc_copy>;
+        };
     };
 
     #define COMBO(NAME, KEYS, BINDINGS) \
