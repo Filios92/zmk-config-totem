@@ -16,6 +16,8 @@
 #include <dt-bindings/zmk/bt.h>
 #include <dt-bindings/zmk/outputs.h>
 
+#include "zmk-helpers/keypos_def/keypos_38keys.h"
+
 #define BASE 0
 #define SYM  1
 #define NUM  2
@@ -68,6 +70,14 @@
         SYMBOL(mc_copy, &kp LC(C))
         SYMBOL(mc_cut,  &kp LC(X))
         TAPHOLD_SYMBOL(th_copycat, &mc_copy, &mc_cut)
+        swap: swapper {
+            compatible = "zmk,behavior-tri-state";
+            label = "SWAPPER";
+            #binding-cells = <0>;
+            bindings = <&kt LALT>, <&kp TAB>, <&kt LALT>;
+            ignored-key-positions = <1 2 3>;
+            ignored-layers = <3>;
+        };
     };
 
     #define COMBO(NAME, KEYS, BINDINGS) \
@@ -97,6 +107,7 @@
             COMBO(combo_esc2, 15 16, &kp ESC)
             COMBO(combo_media_play, 11 12 13, &kp C_PP)
             COMBO(combo_media_layer, 11 12, &mo MEDIA)
+            // COMBO(combo_alttab, 13 14, &swap)
     };
 
     macros {
