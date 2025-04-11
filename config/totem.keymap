@@ -36,84 +36,82 @@
   tapping-term-ms = <170>;
 };
 
+#define KEYS_L 4 3 2 1 0 14 13 12 11 10 25 24 23 22 21 20   // left-hand keys
+#define KEYS_R 5 6 7 8 9 15 16 17 18 19 26 27 28 29 30 31   // right-hand keys
+#define THUMBS 32 33 34 35 36 37                            // thumb keys
+
 / {
-    #define SYMBOL(NAME, SYMBOLS) \
-        NAME: NAME { \
-            compatible = "zmk,behavior-macro"; \
-            label = ZMK_MACRO_STRINGIFY(NAME); \
-            #binding-cells = <0>; \
-            wait-ms = <0>; \
-            tap-ms = <0>; \
-            bindings = <&macro_tap SYMBOLS>; \
+    behaviors {
+        hml: home_row_mod_left {
+            compatible = "zmk,behavior-hold-tap";
+            #binding-cells = <2>;
+            flavor = "balanced";
+            require-prior-idle-ms = <150>;
+            tapping-term-ms = <280>;
+            quick-tap-ms = <175>;
+            bindings = <&kp>, <&kp>;
+            hold-trigger-key-positions = <KEYS_R THUMBS>; // List of keys on the right side of the keyboard
+            hold-trigger-on-release;
         };
-
-    #define TAPHOLD_SYMBOL(NAME, TAP, HOLD) \
-            NAME: NAME { \
-            compatible = "zmk,behavior-hold-tap"; \
-            label = ZMK_MACRO_STRINGIFY(NAME); \
-            #binding-cells = <2>; \
-            tapping-term-ms = <TAPPING_TERM>; \
-            flavor = "tap-preferred"; \
-            quick-tap-ms = <QUICK_TAP_TERM>; \
-            require-prior-idle-ms = <QUICK_TAP_TERM>; \
-            bindings = <HOLD>, <TAP>; \
+        hmr: home_row_mod_right {
+            compatible = "zmk,behavior-hold-tap";
+            #binding-cells = <2>;
+            flavor = "balanced";
+            require-prior-idle-ms = <150>;
+            tapping-term-ms = <280>;
+            quick-tap-ms = <175>;
+            bindings = <&kp>, <&kp>;
+            hold-trigger-key-positions = <KEYS_L THUMBS>; // List of keys on the left side of the keyboard
+            hold-trigger-on-release;
+        };
     };
+};
 
-    symbols {
-        // SYMBOL(mc_copy, &kp LC(C))
-        mc_copy: mc_copy {
-            compatible = "zmk,behavior-macro";
-            label = "mc_copy";
-            #binding-cells = <0>;
-            wait-ms = <0>;
-            tap-ms = <0>;
-            bindings = <&macro_tap &kp LC(C)>;
+/ {
+    behaviors {
+        lt2: lt2 {
+            compatible = "zmk,behavior-hold-tap";
+            #binding-cells = <2>;
+            flavor = "tap-preferred";
+            tapping-term-ms = <50>;
+            bindings = <&mo>, <&kp>;
+            display-name = "Layer-Tap";
         };
-        SYMBOL(mc_cut, &kp LC(X))
-        TAPHOLD_SYMBOL(th_copycat, &mc_copy, &mc_cut)
     };
+};
 
-    #define COMBO(NAME, KEYS, BINDINGS) \
-        NAME { \
-            timeout-ms = <50>; \
-            key-positions = <KEYS>; \
-            bindings = <BINDINGS>; \
+/ {
+    behaviors {
+#if ZMK_BEHAVIOR_OMIT(NUM_WORD)
+        /omit-if-no-ref/
+#endif
+        num_word: num_word {
+            compatible = "zmk,behavior-auto-layer";
+            #binding-cells = <1>;
+            continue-list = <BACKSPACE DELETE DOT COMMA PLUS MINUS STAR FSLH EQUAL>;
+            ignore-numbers;
         };
-    #define COMBO2(NAME, KEYS, BINDINGS, LAYERS) \
-        NAME { \
-            timeout-ms = <50>; \
-            layers = <LAYERS>; \
-            key-positions = <KEYS>; \
-            bindings = <BINDINGS>; \
-        };
+    };
+};
+
+
+/ {
 
     combos {
             compatible = "zmk,combos";
-            COMBO(combo_esc, 0 1, &kp ESC)
-            COMBO(combo_shifttab, 3 13, &kp LS(TAB))
-            COMBO(combo_tab, 4 14, &kp TAB)
-            COMBO(combo_undo, 21 22, &kp LC(Z))
-            COMBO(combo_copycat, 22 23, &th_copycat 0 0)
-            COMBO(combo_paste, 23 24, &kp LC(V))
-            COMBO(combo_bkspc, 5 15, &kp BSPC)
-            COMBO(combo_del, 9 19, &kp DEL)
-            COMBO(combo_esc2, 15 16, &kp ESC)
-            COMBO(combo_media_play, 11 12 13, &kp C_PP)
-            COMBO(combo_media_layer, 11 12, &mo MEDIA)
+            combo_esc {timeout-ms = <50>; key-positions = <0 1>; bindings = <&kp ESC>; };
+            combo_shifttab {timeout-ms = <50>; key-positions = <3 13>; bindings = <&kp LS(TAB)>; };
+            combo_tab {timeout-ms = <50>; key-positions = <4 14>; bindings = <&kp TAB>; };
+            combo_undo {timeout-ms = <50>; key-positions = <21 22>; bindings = <&kp LC(Z)>; };
+            combo_copycat {timeout-ms = <50>; key-positions = <22 23>; bindings = <&mt LC(X) LC(C)>; };
+            combo_paste {timeout-ms = <50>; key-positions = <23 24>; bindings = <&kp LC(V)>; };
+            combo_bkspc {timeout-ms = <50>; key-positions = <5 15>; bindings = <&kp BSPC>; };
+            combo_del {timeout-ms = <50>; key-positions = <9 19>; bindings = <&kp DEL>; };
+            combo_esc2 {timeout-ms = <50>; key-positions = <15 16>; bindings = <&kp ESC>; };
+            combo_media_layer {timeout-ms = <50>; key-positions = <11 12>; bindings = <&mo MEDIA>; };
     };
 
     macros {
-        gif: gif {
-            label = "giphy";
-            compatible = "zmk,behavior-macro";
-            #binding-cells = <0>;
-            bindings
-                = <&macro_press &kp LSHFT>
-                , <&macro_tap &kp N2>
-                , <&macro_release &kp LSHFT>
-                , <&macro_tap &kp G &kp I &kp F>
-                ;
-        };
         fotilde: fotilde {
                 label = "fotilde";
                 compatible = "zmk,behavior-macro";
@@ -124,185 +122,139 @@
                         ;
         };
     };
+};
 
-        keymap {
-                compatible = "zmk,keymap";
-// ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄
+#define CTRL_TILDE &mt LCTRL GRAVE
 
-                base_layer {
-// ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-label= "BASE"                              ;
-// ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-//             ┏━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━┓   ┏━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━┓
-//             ┃     Q     ┃     W     ┃     F     ┃     P     ┃     G     ┃   ┃     J     ┃     L     ┃     U     ┃     Y     ┃     ;     ┃
-//             ┣━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━┫   ┣━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━┫
-//             ┃     A     ┃     R     ┃     S     ┃     T     ┃     D     ┃   ┃     H     ┃     N     ┃     E     ┃     I     ┃     O     ┃
-// ┏━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━┫   ┣━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━┓
-// ┃     Q     ┃     Z     ┃     X     ┃     C     ┃     V     ┃     B     ┃   ┃     K     ┃     M     ┃     ,     ┃     .     ┃     /     ┃     \     ┃
-// ┗━━━━━━━━━━━┻━━━━━━━━━━━┻━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━┫   ┣━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━┻━━━━━━━━━━━┻━━━━━━━━━━━┛
-//                                     ┃    DEL    ┃    TAB    ┃    SPC    ┃   ┃   ENTER   ┃           ┃   BSPC    ┃
-//                                     ┗━━━━━━━━━━━┻━━━━━━━━━━━┻━━━━━━━━━━━┛   ┗━━━━━━━━━━━┻━━━━━━━━━━━┻━━━━━━━━━━━┛
- bindings = <
-// ╷           ╷           ╷           ╷           ╷           ╷           ╷   ╷           ╷           ╷           ╷           ╷           ╷           ╷
+/ {
+keymap {
+compatible = "zmk,keymap";
 
-                &kp Q       &kp W       &kp E       &kp R       &kp T           &kp Y       &kp U       &kp I       &kp O       &kp P
-                &mt LGUI A  &mt LALT S  &mt LCTRL D &mt LSHFT F &kp G           &kp H       &mt RSHFT J &mt RCTRL K &mt RALT L  &mt RGUI SEMI
-&mt LCTRL GRAVE &kp Z       &kp X       &kp C       &kp V       &kp B           &kp N       &kp M       &kp COMMA   &kp DOT     &kp FSLH    &mt RSHFT SQT
-                                        &mo NUM  &mt LSHFT BSPC &kp SPACE       &lt NAV RET &lt SYM DEL &lt FUN TAB
-                        >;
-                };
-
-// ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄
+base_layer {
+label= "BASE";
+bindings = <
+//             ╭─────────────┬─────────────┬─────────────┬─────────────┬─────────────╮ ╭─────────────┬─────────────┬─────────────┬─────────────┬─────────────╮
+                &kp Q         &kp W         &kp E         &kp R         &kp T           &kp Y         &kp U         &kp I         &kp O         &kp P
+//             ├─────────────┼─────────────┼─────────────┼─────────────┼─────────────┤ ├─────────────┼─────────────┼─────────────┼─────────────┼─────────────┤
+                &hml LGUI A   &hml LALT S   &hml LCTRL D  &hml LSHFT F  &kp G           &kp H         &hmr RSHFT J  &hmr RCTRL K  &hmr LALT L   &hmr RGUI SEMI
+//╭────────────┼─────────────┼─────────────┼─────────────┼─────────────┼─────────────┤ ├─────────────┼─────────────┼─────────────┼─────────────┼─────────────┼─────────────╮
+   CTRL_TILDE   &kp Z         &kp X         &kp C         &kp V         &kp B           &kp N         &kp M         &kp COMMA     &kp DOT       &kp FSLH      &mt RSHFT SQT
+//╰────────────┴─────────────┴─────────────┼─────────────┼─────────────┼─────────────┤ ├─────────────┼─────────────┼─────────────┼─────────────┴─────────────┴─────────────╯
+                                            &mo NUM       &mt LSHFT BSPC &kp SPACE      &lt NAV RET   &lt2 SYM DEL  &lt FUN TAB
+//                                         ╰─────────────┴─────────────┴─────────────╯ ╰─────────────┴─────────────┴─────────────╯
+>;
+};
 
 
-                sym_layer {
-// ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-label= "SYM"                               ;
-// ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-//             ┏━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━┓   ┏━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━┓
-//             ┃     !     ┃     @     ┃     #     ┃     $     ┃     %     ┃   ┃     ˆ     ┃     &     ┃     Ü     ┃     '     ┃     "     ┃
-//             ┣━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━┫   ┣━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━┫
-//             ┃     Ä     ┃           ┃    SZ     ┃           ┃           ┃   ┃   MUTE    ┃   YEN     ┃   EURO    ┃  POUND    ┃     Ö     ┃
-// ┏━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━┫   ┣━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━┓
-// ┃           ┃  EMAIL1   ┃  EMAIL2   ┃           ┃           ┃           ┃   ┃   VOL-    ┃   VOL+    ┃   LAST    ┃   NEXT    ┃     \     ┃           ┃
-// ┗━━━━━━━━━━━┻━━━━━━━━━━━┻━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━┫   ┣━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━┻━━━━━━━━━━━┻━━━━━━━━━━━┛
-//                                     ┃           ┃    GIF    ┃    ADJ    ┃   ┃           ┃           ┃           ┃
-//                                     ┗━━━━━━━━━━━┻━━━━━━━━━━━┻━━━━━━━━━━━┛   ┗━━━━━━━━━━━┻━━━━━━━━━━━┻━━━━━━━━━━━┛
- bindings = <
-// ╷           ╷           ╷           ╷           ╷           ╷           ╷   ╷           ╷           ╷           ╷           ╷           ╷           ╷
-
-                &kp EXCL     &kp AT      &kp RA(E)   &kp DLLR    &kp PIPE       &kp EQUAL   &kp LBKT    &kp RBKT    &kp RA(O)   &trans       
-                &kp RA(A)    &kp RA(S)   &kp HASH    &kp STAR    &kp PRCNT      &kp MINUS   &kp LPAR    &kp RPAR    &kp RA(L)   &kp RA(O) 
-    &trans      &kp RA(Z)    &kp RA(X)   &kp RA(C)   &kp AMPS    &kp CARET      &kp RA(N)   &kp LBRC    &kp RBRC    &fotilde    &kp BSLH   &kp RALT         
-                                         &trans      &trans      &kp UNDER      &trans      &trans      &trans      
-                        >;
-                };
-
-// ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄
+sym_layer {
+label= "SYM";
+bindings = <
+//             ╭─────────────┬─────────────┬─────────────┬─────────────┬─────────────╮ ╭─────────────┬─────────────┬─────────────┬─────────────┬─────────────╮
+                &kp EXCL      &kp AT        &kp RA(E)     &kp DLLR      &kp PIPE        &kp EQUAL     &kp LBKT      &kp RBKT      &kp RA(O)     &trans
+//             ├─────────────┼─────────────┼─────────────┼─────────────┼─────────────┤ ├─────────────┼─────────────┼─────────────┼─────────────┼─────────────┤
+                &kp RA(A)     &kp RA(S)     &kp HASH      &kp STAR      &kp PRCNT       &kp MINUS     &kp LPAR      &kp RPAR      &kp RA(L)     &kp RA(O) 
+//╭────────────┼─────────────┼─────────────┼─────────────┼─────────────┼─────────────┤ ├─────────────┼─────────────┼─────────────┼─────────────┼─────────────┼─────────────╮
+   &trans       &kp RA(Z)     &kp RA(X)     &kp RA(C)     &kp AMPS      &kp CARET       &kp RA(N)     &kp LBRC      &kp RBRC      &fotilde      &kp BSLH      &kp RALT
+//╰────────────┴─────────────┴─────────────┼─────────────┼─────────────┼─────────────┤ ├─────────────┼─────────────┼─────────────┼─────────────┴─────────────┴─────────────╯
+                                            &trans        &trans        &kp UNDER       &trans        &trans        &trans      
+//                                         ╰─────────────┴─────────────┴─────────────╯ ╰─────────────┴─────────────┴─────────────╯
+>;
+};
 
 
-                num_layer {
-// ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-label= "NUM"                               ;
-// ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-//             ┏━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━┓   ┏━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━┓
-//             ┃           ┃           ┃     UP    ┃           ┃     {     ┃   ┃     }     ┃     7     ┃     8     ┃     9     ┃     +     ┃
-//             ┣━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━┫   ┣━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━┫
-//             ┃   SHIFT   ┃   LEFT    ┃    DOWN   ┃   RIGHT   ┃     [     ┃   ┃     ]     ┃     4     ┃     5     ┃     6     ┃     -     ┃
-// ┏━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━┫   ┣━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━┓
-// ┃           ┃           ┃   P UP    ┃  C LOCK   ┃  P DOWN   ┃     (     ┃   ┃     )     ┃     1     ┃     2     ┃     3     ┃     *     ┃           ┃
-// ┗━━━━━━━━━━━┻━━━━━━━━━━━┻━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━┫   ┣━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━┻━━━━━━━━━━━┻━━━━━━━━━━━┛
-//                                     ┃           ┃    TAB    ┃    SPC    ┃   ┃    DEL    ┃     0     ┃           ┃
-//                                     ┗━━━━━━━━━━━┻━━━━━━━━━━━┻━━━━━━━━━━━┛   ┗━━━━━━━━━━━┻━━━━━━━━━━━┻━━━━━━━━━━━┛
- bindings = <
-// ╷           ╷           ╷           ╷           ╷           ╷           ╷   ╷           ╷           ╷           ╷           ╷           ╷           ╷
+num_layer {
+label= "NUM";
+bindings = <
+//             ╭─────────────┬─────────────┬─────────────┬─────────────┬─────────────╮ ╭─────────────┬─────────────┬─────────────┬─────────────┬─────────────╮
+                &trans        &trans        &trans        &trans        &trans          &kp EQUAL     &kp N7        &kp N8        &kp N9        &kp N0
+//             ├─────────────┼─────────────┼─────────────┼─────────────┼─────────────┤ ├─────────────┼─────────────┼─────────────┼─────────────┼─────────────┤
+                &trans        &trans        &trans        &trans        &tog FUN        &kp MINUS     &kp N4        &kp N5        &kp N6        &kp KP_MULTIPLY
+//╭────────────┼─────────────┼─────────────┼─────────────┼─────────────┼─────────────┤ ├─────────────┼─────────────┼─────────────┼─────────────┼─────────────┼─────────────╮
+   &trans       &trans        &trans        &trans        &trans        &trans          &kp PLUS      &kp N1        &kp N2        &kp N3        &kp FSLH      &to BASE
+//╰────────────┴─────────────┴─────────────┼─────────────┼─────────────┼─────────────┤ ├─────────────┼─────────────┼─────────────┼─────────────┴─────────────┴─────────────╯
+                                            &trans        &trans        &trans          &trans        &kp N0        &kp KP_DOT
+//                                         ╰─────────────┴─────────────┴─────────────╯ ╰─────────────┴─────────────┴─────────────╯
+>;
+};
 
-                &trans   &trans  &trans   &trans   &trans        &kp EQUAL   &kp N7   &kp N8   &kp N9   &kp N0
-                &trans   &trans  &trans   &trans   &tog FUN      &kp MINUS   &kp N4   &kp N5   &kp N6   &kp KP_MULTIPLY
-    &trans      &trans   &trans  &trans   &trans   &trans        &kp PLUS    &kp N1   &kp N2   &kp N3   &kp FSLH        &to BASE      
-                                 &trans   &trans   &trans        &trans      &kp N0   &kp KP_DOT
-                        >;
-                };
-
-// ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄
-
-
-                navi_layer {
-// ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-label= "NAVI"                               ;
-// ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-//             ┏━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━┓   ┏━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━┓
-//             ┃           ┃           ┃     UP    ┃           ┃     {     ┃   ┃     }     ┃     7     ┃     8     ┃     9     ┃     +     ┃
-//             ┣━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━┫   ┣━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━┫
-//             ┃   SHIFT   ┃   LEFT    ┃    DOWN   ┃   RIGHT   ┃     [     ┃   ┃     ]     ┃     4     ┃     5     ┃     6     ┃     -     ┃
-// ┏━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━┫   ┣━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━┓
-// ┃           ┃           ┃   P UP    ┃  C LOCK   ┃  P DOWN   ┃     (     ┃   ┃     )     ┃     1     ┃     2     ┃     3     ┃     *     ┃           ┃
-// ┗━━━━━━━━━━━┻━━━━━━━━━━━┻━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━┫   ┣━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━┻━━━━━━━━━━━┻━━━━━━━━━━━┛
-//                                     ┃           ┃    TAB    ┃    SPC    ┃   ┃    DEL    ┃     0     ┃           ┃
-//                                     ┗━━━━━━━━━━━┻━━━━━━━━━━━┻━━━━━━━━━━━┛   ┗━━━━━━━━━━━┻━━━━━━━━━━━┻━━━━━━━━━━━┛
- bindings = <
-// ╷           ╷           ╷           ╷           ╷           ╷           ╷   ╷           ╷           ╷           ╷           ╷           ╷           ╷
-
-                &trans   &trans  &trans   &trans   &trans        &kp PG_UP   &kp HOME        &kp UP         &kp END   &kp PSCRN
-                &trans   &trans  &trans   &trans   &trans        &kp PG_DN   &kp LEFT        &kp DOWN       &kp RIGHT &kp INS
-    &trans      &trans   &trans  &trans   &trans   &trans        &trans      &kp LC(PG_UP)   &kp LC(PG_DN)  &trans    &trans        &trans      
-                                 &trans   &trans   &trans        &trans      &trans          &tog SYS
-                        >;
-                };
-
-// ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄
+navi_layer {
+label= "NAVI";
+bindings = <
+//             ╭─────────────┬─────────────┬─────────────┬─────────────┬─────────────╮ ╭─────────────┬─────────────┬─────────────┬─────────────┬─────────────╮
+                &trans        &trans        &trans        &trans        &trans          &kp PG_UP     &kp HOME      &kp UP        &kp END       &kp PSCRN
+//             ├─────────────┼─────────────┼─────────────┼─────────────┼─────────────┤ ├─────────────┼─────────────┼─────────────┼─────────────┼─────────────┤
+                &trans        &trans        &trans        &trans        &trans          &kp PG_DN     &kp LEFT      &kp DOWN      &kp RIGHT     &kp INS
+//╭────────────┼─────────────┼─────────────┼─────────────┼─────────────┼─────────────┤ ├─────────────┼─────────────┼─────────────┼─────────────┼─────────────┼─────────────╮
+   &trans       &trans        &trans        &trans        &trans        &trans          &trans        &kp LC(PG_UP) &kp LC(PG_DN) &trans        &trans        &trans
+//╰────────────┴─────────────┴─────────────┼─────────────┼─────────────┼─────────────┤ ├─────────────┼─────────────┼─────────────┼─────────────┴─────────────┴─────────────╯
+                                            &trans        &trans        &trans          &trans        &trans        &tog SYS
+//                                         ╰─────────────┴─────────────┴─────────────╯ ╰─────────────┴─────────────┴─────────────╯
+>;
+};
 
 
-                function_layer {
-// ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-label= "FUNCTION"                          ;
-// ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
- bindings = <
-// ╷           ╷           ╷           ╷           ╷           ╷           ╷   ╷           ╷           ╷           ╷           ╷           ╷           ╷
-
-                &kp F1      &kp F2      &kp F3      &kp F4     &trans          &trans      &trans      &trans      &trans      &trans
-                &kp F5      &kp F6      &kp F7      &kp F8     &tog FUN2       &tog NUM    &trans      &trans      &trans      &trans  
-    &trans      &kp F9      &kp F10     &kp F11     &kp F12    &trans          &trans      &trans      &trans      &trans      &trans     &trans         
-                                        &trans      &trans     &to BASE        &trans      &trans      &trans      
-                        >;
-                };
-
-// ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄
-
-                function2_layer {
-// ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-label= "FUNCTION2"                         ;
-// ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
- bindings = <
-// ╷           ╷           ╷           ╷           ╷           ╷           ╷   ╷           ╷           ╷           ╷           ╷           ╷           ╷
-
-                &to BASE    &kp F13     &kp F14     &kp F15    &tog SYS          &trans      &trans      &trans      &trans      &trans
-                &trans      &kp F16     &kp F17     &kp F18    &trans          &trans      &trans      &trans      &trans      &trans  
-    &trans      &trans      &kp F19     &kp F20     &kp F21    &trans          &trans      &trans      &trans      &trans      &trans     &trans         
-                                        &trans      &trans     &to BASE        &trans      &trans      &trans      
-                        >;
-                };
-
-// ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄
+function_layer {
+label= "FUNCTION";
+bindings = <
+//             ╭─────────────┬─────────────┬─────────────┬─────────────┬─────────────╮ ╭─────────────┬─────────────┬─────────────┬─────────────┬─────────────╮
+                &kp F1        &kp F2        &kp F3        &kp F4        &trans          &trans        &trans        &trans        &trans        &trans
+//             ├─────────────┼─────────────┼─────────────┼─────────────┼─────────────┤ ├─────────────┼─────────────┼─────────────┼─────────────┼─────────────┤
+                &kp F5        &kp F6        &kp F7        &kp F8        &tog FUN2       &mo NUM       &trans        &trans        &trans        &trans  
+//╭────────────┼─────────────┼─────────────┼─────────────┼─────────────┼─────────────┤ ├─────────────┼─────────────┼─────────────┼─────────────┼─────────────┼─────────────╮
+   &trans       &kp F9        &kp F10       &kp F11       &kp F12       &trans          &trans        &trans        &trans        &trans        &trans        &caps_word
+//╰────────────┴─────────────┴─────────────┼─────────────┼─────────────┼─────────────┤ ├─────────────┼─────────────┼─────────────┼─────────────┴─────────────┴─────────────╯
+                                            &trans        &trans        &to BASE        &trans        &trans        &trans      
+//                                         ╰─────────────┴─────────────┴─────────────╯ ╰─────────────┴─────────────┴─────────────╯
+>;
+};
 
 
-                system_layer {
-// ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-label= "SYS"                               ;
-// ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-//             ┏━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━┓   ┏━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━┓
-//             ┃   RESET   ┃ BT CLEAR  ┃  OUT TOG  ┃           ┃           ┃   ┃           ┃    F7     ┃    F8     ┃    F9     ┃    F12    ┃
-//             ┣━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━┫   ┣━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━┫
-//             ┃ BOOTLOAD  ┃ BT NEXT   ┃           ┃           ┃           ┃   ┃           ┃    F4     ┃    F5     ┃    F6     ┃    F11    ┃
-// ┏━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━┫   ┣━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━┓
-// ┃           ┃           ┃ BT PREV   ┃           ┃           ┃           ┃   ┃           ┃    F1     ┃    F2     ┃    F3     ┃    F10    ┃           ┃
-// ┗━━━━━━━━━━━┻━━━━━━━━━━━┻━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━┫   ┣━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━━┻━━━━━━━━━━━┻━━━━━━━━━━━┛
-//                                     ┃           ┃           ┃           ┃   ┃           ┃           ┃           ┃
-//                                     ┗━━━━━━━━━━━┻━━━━━━━━━━━┻━━━━━━━━━━━┛   ┗━━━━━━━━━━━┻━━━━━━━━━━━┻━━━━━━━━━━━┛
- bindings = <
-// ╷           ╷           ╷           ╷           ╷           ╷           ╷   ╷           ╷           ╷           ╷           ╷           ╷           ╷
+function2_layer {
+label= "FUNCTION2";
+bindings = <
+//             ╭─────────────┬─────────────┬─────────────┬─────────────┬─────────────╮ ╭─────────────┬─────────────┬─────────────┬─────────────┬─────────────╮
+                &to BASE      &kp F13       &kp F14       &kp F15       &tog SYS        &trans        &trans        &trans        &trans        &trans
+//             ├─────────────┼─────────────┼─────────────┼─────────────┼─────────────┤ ├─────────────┼─────────────┼─────────────┼─────────────┼─────────────┤
+                &trans        &kp F16       &kp F17       &kp F18       &trans          &trans        &trans        &trans        &trans        &trans  
+//╭────────────┼─────────────┼─────────────┼─────────────┼─────────────┼─────────────┤ ├─────────────┼─────────────┼─────────────┼─────────────┼─────────────┼─────────────╮
+   &trans       &trans        &kp F19       &kp F20       &kp F21       &trans          &trans        &trans        &trans        &trans        &trans        &trans
+//╰────────────┴─────────────┴─────────────┼─────────────┼─────────────┼─────────────┤ ├─────────────┼─────────────┼─────────────┼─────────────┴─────────────┴─────────────╯
+                                            &trans        &trans        &to BASE        &trans        &trans        &trans      
+//                                         ╰─────────────┴─────────────┴─────────────╯ ╰─────────────┴─────────────┴─────────────╯
+>;
+};
 
-                &sys_reset  &bt BT_CLR &out OUT_TOG &none      &none          &none       &none      &none      &none      &sys_reset
-                &bootloader &bt BT_NXT  &none       &none      &none          &none       &none      &none      &none      &bootloader  
-    &to BASE    &none       &bt BT_PRV  &none       &none      &none          &none       &none      &none      &none      &none        &none
-                                        &none       &none      &to BASE       &to BASE    &none      &none      
-                        >;
-                };
 
-// ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄
+system_layer {
+label= "SYS";
+bindings = <
+//             ╭─────────────┬─────────────┬─────────────┬─────────────┬─────────────╮ ╭─────────────┬─────────────┬─────────────┬─────────────┬─────────────╮
+                &sys_reset    &bt BT_CLR    &out OUT_TOG  &none         &bt BT_SEL 0    &none         &none         &none         &none         &sys_reset
+//             ├─────────────┼─────────────┼─────────────┼─────────────┼─────────────┤ ├─────────────┼─────────────┼─────────────┼─────────────┼─────────────┤
+                &bootloader   &bt BT_NXT    &none         &none         &bt BT_SEL 1    &none         &none         &none         &none         &bootloader  
+//╭────────────┼─────────────┼─────────────┼─────────────┼─────────────┼─────────────┤ ├─────────────┼─────────────┼─────────────┼─────────────┼─────────────┼─────────────╮
+   &to BASE     &none         &bt BT_PRV    &none         &none         &bt BT_SEL 2    &none         &none         &none         &none         &none         &none
+//╰────────────┴─────────────┴─────────────┼─────────────┼─────────────┼─────────────┤ ├─────────────┼─────────────┼─────────────┼─────────────┴─────────────┴─────────────╯
+                                            &none         &none         &to BASE        &to BASE      &none         &none      
+//                                         ╰─────────────┴─────────────┴─────────────╯ ╰─────────────┴─────────────┴─────────────╯
+>;
+};
 
-                media_layer {
-// ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-label= "MEDIA"                         ;
-// ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
- bindings = <
-// ╷           ╷           ╷           ╷           ╷           ╷           ╷   ╷           ╷           ╷           ╷           ╷           ╷           ╷
 
-                &trans      &trans     &trans     &kp C_VOL_UP    &kp C_NEXT          &trans      &trans      &trans      &trans      &trans
-                &trans      &trans     &trans     &kp C_VOL_DN    &kp C_PREV          &trans      &trans      &trans      &trans      &trans  
-    &trans      &trans      &trans     &trans     &kp C_MUTE    &trans          &trans      &trans      &trans      &trans      &trans     &trans         
-                                        &trans      &trans     &to BASE        &trans      &trans      &trans      
-                        >;
-                };
-        };
+media_layer {
+label= "MEDIA";
+            bindings = <
+//             ╭─────────────┬─────────────┬─────────────┬─────────────┬─────────────╮ ╭─────────────┬─────────────┬─────────────┬─────────────┬─────────────╮
+                &trans        &trans        &trans        &kp C_VOL_UP  &kp C_NEXT      &trans        &trans        &trans        &trans        &trans
+//             ├─────────────┼─────────────┼─────────────┼─────────────┼─────────────┤ ├─────────────┼─────────────┼─────────────┼─────────────┼─────────────┤
+                &trans        &trans        &kp C_PP      &kp C_VOL_DN  &kp C_PREV      &trans        &trans        &trans        &trans        &trans  
+//╭────────────┼─────────────┼─────────────┼─────────────┼─────────────┼─────────────┤ ├─────────────┼─────────────┼─────────────┼─────────────┼─────────────┼─────────────╮
+   &trans       &trans        &trans        &trans        &kp C_MUTE    &trans          &trans        &trans        &trans        &trans        &trans        &trans         
+//╰────────────┴─────────────┴─────────────┼─────────────┼─────────────┼─────────────┤ ├─────────────┼─────────────┼─────────────┼─────────────┴─────────────┴─────────────╯
+                                            &trans        &trans        &to BASE        &trans        &trans        &trans      
+//                                         ╰─────────────┴─────────────┴─────────────╯ ╰─────────────┴─────────────┴─────────────╯
+>;
+};
+
+};
 };
