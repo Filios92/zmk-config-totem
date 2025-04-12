@@ -4,6 +4,12 @@
   <img alt="TOTEM logo font" src="/docs/images/TOTEM_logo_bright.svg">
 </picture>
 
+# BUILD
+```
+west build -s zmk/app/ -p -d build/left -b "seeeduino_xiao_ble"  -- -DZMK_CONFIG=$(readlink -f config/) -DSHIELD="totem_left"
+west build -s zmk/app/ -p -d build/right -b "seeeduino_xiao_ble"  -- -DZMK_CONFIG=$(readlink -f config/) -DSHIELD="totem_right"
+```
+
 # ZMK CONFIG FOR THE TOTEM SPLIT KEYBOARD
 
 [Here](https://github.com/GEIGEIGEIST/totem) you can find the hardware files and build guide.\
