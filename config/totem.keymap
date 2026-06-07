@@ -111,7 +111,6 @@
 
     macros {
         fotilde: fotilde {
-                label = "fotilde";
                 compatible = "zmk,behavior-macro";
                 #binding-cells = <0>;
                 bindings
@@ -128,7 +127,6 @@ keymap {
 compatible = "zmk,keymap";
 
 base_layer {
-label= "BASE";
 bindings = <
 //             ╭─────────────┬─────────────┬─────────────┬─────────────┬─────────────╮ ╭─────────────┬─────────────┬─────────────┬─────────────┬─────────────╮
                 &kp Q         &kp W         &kp E         &kp R         &kp T           &kp Y         &kp U         &kp I         &kp O         &kp P
@@ -144,7 +142,6 @@ bindings = <
 
 
 sym_layer {
-label= "SYM";
 bindings = <
 //             ╭─────────────┬─────────────┬─────────────┬─────────────┬─────────────╮ ╭─────────────┬─────────────┬─────────────┬─────────────┬─────────────╮
                 &kp EXCL      &kp AT        &kp RA(E)     &kp DLLR      &kp PIPE        &kp EQUAL     &kp LBKT      &kp RBKT      &kp RA(O)     &trans
@@ -160,7 +157,6 @@ bindings = <
 
 
 num_layer {
-label= "NUM";
 bindings = <
 //             ╭─────────────┬─────────────┬─────────────┬─────────────┬─────────────╮ ╭─────────────┬─────────────┬─────────────┬─────────────┬─────────────╮
                 &trans        &trans        &trans        &trans        &trans          &kp EQUAL     &kp N7        &kp N8        &kp N9        &kp N0
@@ -175,7 +171,6 @@ bindings = <
 };
 
 navi_layer {
-label= "NAVI";
 bindings = <
 //             ╭─────────────┬─────────────┬─────────────┬─────────────┬─────────────╮ ╭─────────────┬─────────────┬─────────────┬─────────────┬─────────────╮
                 &trans        &trans        &trans        &trans        &trans          &kp PG_UP     &kp HOME      &kp UP        &kp END       &kp PSCRN
@@ -191,7 +186,6 @@ bindings = <
 
 
 function_layer {
-label= "FUNCTION";
 bindings = <
 //             ╭─────────────┬─────────────┬─────────────┬─────────────┬─────────────╮ ╭─────────────┬─────────────┬─────────────┬─────────────┬─────────────╮
                 &kp F1        &kp F2        &kp F3        &kp F4        &trans          &trans        &trans        &trans        &trans        &trans
@@ -207,7 +201,6 @@ bindings = <
 
 
 function2_layer {
-label= "FUNCTION2";
 bindings = <
 //             ╭─────────────┬─────────────┬─────────────┬─────────────┬─────────────╮ ╭─────────────┬─────────────┬─────────────┬─────────────┬─────────────╮
                 &to BASE      &kp F13       &kp F14       &kp F15       &tog SYS        &trans        &trans        &trans        &trans        &trans
@@ -223,7 +216,6 @@ bindings = <
 
 
 system_layer {
-label= "SYS";
 bindings = <
 //             ╭─────────────┬─────────────┬─────────────┬─────────────┬─────────────╮ ╭─────────────┬─────────────┬─────────────┬─────────────┬─────────────╮
                 &sys_reset    &bt BT_CLR    &out OUT_TOG  &none         &bt BT_SEL 0    &none         &none         &none         &none         &sys_reset
@@ -239,7 +231,6 @@ bindings = <
 
 
 media_layer {
-label= "MEDIA";
             bindings = <
 //             ╭─────────────┬─────────────┬─────────────┬─────────────┬─────────────╮ ╭─────────────┬─────────────┬─────────────┬─────────────┬─────────────╮
                 &trans        &trans        &trans        &kp C_VOL_UP  &kp C_NEXT      &trans        &trans        &trans        &trans        &trans
